@@ -11,34 +11,37 @@ print("privado json passed is : " + privadoJson)
 
 
 def extractDomainFromUrlVerifyIPAddress(url):
-    # Extract Domain name from url & set it as vendorName
-    urlSplit = re.split('\.|://', url)
-    domain = ''
-    extension = re.split('\/', urlSplit[-1])
+    try:
+        # Extract Domain name from url & set it as vendorName
+        urlSplit = re.split('\.|://', url)
+        domain = ''
+        extension = re.split('\/', urlSplit[-1])
 
-    isIPAddress = re.match('.{0,20}\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', url) != None
-    if isIPAddress:
-        return True, '.'.join([urlSplit[-4], urlSplit[-3], urlSplit[-2], extension[0]])
-    
-    # Specific condition to handle google.gov.in or google.org.us kind of case
-    res = re.findall("[.](?:com|net|co|gov|edu|org|info|web|mil)[.]", url)
+        isIPAddress = re.match('.{0,20}\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', url) != None
+        if isIPAddress:
+            return True, '.'.join([urlSplit[-4], urlSplit[-3], urlSplit[-2], extension[0]])
+        
+        # Specific condition to handle google.gov.in or google.org.us kind of case
+        res = re.findall("[.](?:com|net|co|gov|edu|org|info|web|mil)[.]", url)
 
-    # Try to get sub-domain/service if available
-    if len(urlSplit) > 3:
-        if urlSplit[-3] == 'www':
-            domain = urlSplit[-2] + '.' + extension[0]
+        # Try to get sub-domain/service if available
+        if len(urlSplit) > 3:
+            if urlSplit[-3] == 'www':
+                domain = urlSplit[-2] + '.' + extension[0]
+            else:
+                if len(res):
+                    domain = '.'.join([urlSplit[-3], urlSplit[-2], extension[0]])
+                else:
+                    domain = '.'.join([urlSplit[-2], extension[0]])
         else:
             if len(res):
                 domain = '.'.join([urlSplit[-3], urlSplit[-2], extension[0]])
             else:
                 domain = '.'.join([urlSplit[-2], extension[0]])
-    else:
-        if len(res):
-            domain = '.'.join([urlSplit[-3], urlSplit[-2], extension[0]])
-        else:
-            domain = '.'.join([urlSplit[-2], extension[0]])
 
-    return False, domain.strip('"`\'').lower()
+        return True, domain.strip('"`\'').lower()
+    except Exception as e:
+        return True, url
 
 
 
